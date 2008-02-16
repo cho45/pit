@@ -1,0 +1,137 @@
+#!/usr/bin/env ruby
+# vim:ft=ruby:
+# ruby -Ilib bin/pit 
+
+require "optparse"
+require "pathname"
+require "pit"
+
+class PitCommand
+	VERSION = Pit::VERSION
+	NAME    = "pit"
+
+	def self.run(argv)
+		new(argv.dup).run
+	end
+
+	def initialize(argv)
+		@argv = argv
+
+		@subparsers = {
+			"help" => OptionParser.new { |opts|
+				opts.banner = <<-EOB.gsub(/^\t+/, "")
+					Usage: #{NAME} help <subcommand>
+
+					Show help of subcommand.
+				EOB
+			},
+
+			"set" => OptionParser.new { |opts|
+				opts.banner = <<-EOB.gsub(/^\t+/, "")
+					Usage: #{NAME} set <name>
+
+					Config values of name with $EDITOR.
+				EOB
+			},
+
+			"get" => OptionParser.new { |opts|
+				opts.banner = <<-EOB.gsub(/^\t+/, "")
+					Usage: #{NAME} get <name>
+
+					Get values of <name>.
+				EOB
+			},
+
+			"switch" => OptionParser.new { |opts|
+				opts.banner = <<-EOB.gsub(/^\t+/, "")
+					Usage: #{NAME} switch <profile>
+
+					Switch profile to <profile>.
+				EOB
+			},
+		}
+
+		@parser = OptionParser.new do |parser|
+			parser.banner  = <<-EOB.gsub(/^\t+/, "")
+				Usage: #{NAME} <subcommand> <args>
+
+			EOB
+
+			parser.separator ""
+
+			parser.separator "Subcommands:"
+			@subparsers.keys.sort.each do |k|
+				parser.separator "#{parser.summary_indent}    #{k}"
+			end
+
+			parser.separator ""
+
+			parser.separator "Options:"
+			parser.on('--version', "Show version string `#{VERSION}'") do
+				puts VERSION
+				exit
+			end
+		end
+	end
+
+	def run
+		@parser.order!(@argv)
+		if @argv.empty?
+			puts @parser.help
+			exit
+		else
+			@subcommand = @argv.shift
+			method_name = "cmd_#{@subcommand}"
+			if self.respond_to?(method_name)
+				@subparsers[@subcommand].parse!(@argv)
+				self.send(method_name)
+			else
+				puts "Not implemented subcommand: `#{@subcommand}'."
+				puts
+				puts @parser.help
+			end
+		end
+	end
+
+	def cmd_get
+		name, = @argv
+		exit if name.nil?
+		if $stdout.tty?
+			warn "do not output to tty."
+		else
+			puts Pit.get(name).to_yaml
+		end
+	end
+
+	def cmd_set
+		name, = @argv
+		exit if name.nil?
+		Pit.set(name)
+	end
+
+	def cmd_switch
+		profile, = @argv
+		profile = "default" if profile.nil?
+		profile.gsub(/[^a-z0-9.-]/i, "")
+		Pit.switch(profile)
+		warn "Switch profile to #{profile}"
+	end
+
+	def cmd_help
+		subcommand, = @argv
+		if subcommand
+			if @subparsers.key? subcommand
+				puts @subparsers[subcommand].help
+			else
+				puts "No such subcommand `#{subcommand}'"
+				puts @parser.help
+			end
+		else
+			puts @parser.help
+		end
+	end
+end
+
+PitCommand.run(ARGV)
+
+

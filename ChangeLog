@@ -1,0 +1,72 @@
+2008-01-06  cho45
+
+	* [r4144] lib/pit.rb:
+	  
+	  Fix config merge bug.
+
+	* [r4141] Rakefile:
+	  
+	  follow removing Step::Ask
+
+2008-01-05  cho45
+
+	* [r4072] ChangeLog, lib/pit.rb:
+	  
+	  Release 0.0.4
+
+	* [r4067] Rakefile, bin/pit, lib/pit.rb:
+	  
+	  shipit つかうように
+	  pit コマンドの --version が矛盾してしまっていたので修正
+
+	* [r4066] bin/pit:
+	  
+	  implemented help subcommand.
+	  help コマンドを実装していなかった……
+
+	* [r4065] ChangeLog, lib/pit.rb:
+	  
+	  リファクタリング。
+	  set でエディタをひらき、何も変更しなかった場合に何も返さなかった問題を修正
+
+2008-01-04  cho45
+
+	* [r4031] .:
+	  
+	  set svn ignore
+
+2008-01-02  cho45
+
+	* [r3979] ChangeLog, Rakefile, test/pit_test.rb:
+	  
+	  テストたしてりりーす
+
+	* [r3978] lib/pit.rb:
+	  
+	  get :require がちゃんと設定をかえしてなかった
+
+	* [r3973] ChangeLog, README, Rakefile, lib/pit.rb:
+	  
+	  Pit.get のだいにひきすうをかっこよく
+
+	* [r3972] Rakefile:
+	  
+	  released 0.0.1
+
+	* [r3971] README, bin/pit, lib/pit.rb:
+	  
+	  とりあえずつかえるぐらいに
+
+	* [r3970] lib/pit.rb, test/pit_test.rb:
+	  
+	  implemented switch
+
+	* [r3969] Rakefile:
+	  
+	  Rakefile
+
+	* [r3968] ., ChangeLog, README, Rakefile, bin, bin/pit, lib,
+	  lib/pit.rb, test, test/pit_test.rb, test/test_helper.rb:
+	  
+	  import
+
