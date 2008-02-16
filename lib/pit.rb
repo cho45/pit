@@ -1,14 +1,12 @@
-
 require "yaml"
 require "pathname"
 require "tempfile"
-
+require File.expand_path(File.join(File.dirname(__FILE__), 'pit/data'))
 module Pit
 	VERSION   = "0.0.5"
 	Directory = Pathname.new("~/.pit").expand_path
 	@@config  = Directory + "pit.yaml"
 	@@profile = Directory + "default.yaml"
-
 	# Set _name_ setting to current profile.
 	# If not _opts_ specified, this opens $EDITOR with current profile setting.
 	# If `data` specified, this just sets it to current profile.
@@ -22,22 +20,32 @@ module Pit
 			if ENV["EDITOR"].nil? || !$stdout.tty?
 				return {}
 			end
-			c = (opts[:config] || self.get(name)).to_yaml
+			if opts[:config]
+				original_data = opts[:config]
+				opts[:config] = {}
+				original_data.each do |key, val|
+					opts[:config][key.to_s] = val
+				end
+			end
+			c = (opts[:config] || self.get(name).to_hash).to_yaml
 			t = Tempfile.new("pit")
 			t << c
 			t.close
 			system(ENV["EDITOR"], t.path)
 			t.open
 			result = t.read
+			t.close
 			if result == c
 				warn "No Changes"
-				return profile[name]
+				return Pit::Data.new(profile[name].to_hash)
 			end
 			result = YAML.load(result)
 		end
 		profile[name] = result
 		@@profile.open("w") {|f| YAML.dump(profile, f) }
-		result
+		if result
+			Pit::Data.new(profile[name].to_hash)
+		end
 	end
 
 	# Get _name_ setting from current profile.
@@ -46,12 +54,16 @@ module Pit
 	def self.get(name, opts={})
 		ret = self.load[name] || {}
 		if opts[:require]
-			unless opts[:require].keys.all? {|k| ret[k] }
+			unless opts[:require].keys.all? {|k| ret[k.to_s] }
 				ret = opts[:require].update(ret)
 				ret = self.set(name, :config => ret)
 			end
 		end
-		ret || {"username"=>"", "password"=>""}
+		if ret
+			Pit::Data.new(ret.to_hash)
+		else
+			Pit::Data.new({ "username"=>"", "password"=>"" })
+		end
 	end
 
 	# Switch to current profile to _name_.

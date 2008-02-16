@@ -41,7 +41,22 @@ class PitTest < Test::Unit::TestCase
 		assert_equal "foo", Pit.set("test", :data => {"username"=>"foo","password"=>"bar"})["username"]
 	end
 
+	def test_set_get_with_method
+		Pit.set("test", :data => {"username"=>"foo","password"=>"bar"})
+		assert_equal("foo", Pit.get("test").username)
+		assert_equal("bar", Pit.get("test").password)
+
+		Pit.set("test2", :data => {"username"=>"foo2","password"=>"bar2"})
+		assert_equal("foo2", Pit.get("test2").username)
+		assert_equal("bar2", Pit.get("test2").password)
+
+		assert_equal("foo", Pit.set("test", :data => {"username"=>"foo","password"=>"bar"}).username)
+	end
+
 	def test_editor
+		# clear
+		Pit.set("test", :data => {})
+
 		ENV["EDITOR"] = nil
 		assert_nothing_raised("When editor is not set.") do
 			Pit.set("test")
@@ -80,6 +95,24 @@ class PitTest < Test::Unit::TestCase
 			assert_equal(data, YAML.load_file(tst.to_s))
 		end
 
+    # testing with data key symbol
+		data = {
+			:foo => "0101",
+			:bar => "0202",
+		}
+
+		Pit.set("test", :data => data)
+		Pit.set("test")
+
+		expected_of = {
+			"foo" => "0101",
+			"bar" => "0202", 
+		}
+
+		assert_nothing_raised do
+			assert_equal(expected_of, YAML.load_file(tst.to_s), "when data has Symbol key, it convet to String for portability of language")
+		end
+
 		# clear
 		Pit.set("test", :data => {})
 		tst.open("w") {|f| }
@@ -87,7 +120,7 @@ class PitTest < Test::Unit::TestCase
 		Pit.get("test", :require => data)
 
 		assert_nothing_raised do
-			assert_equal(data, YAML.load_file(tst.to_s))
+			assert_equal(expected_of, YAML.load_file(tst.to_s))
 		end
 	end
 
