@@ -1,3 +1,13 @@
+2008-07-15  SATOH Hiroh <cho45@lowreal.net>
+
+	* [release]:
+		Released 0.05
+
+2008-01-09  SATOH Hiroh <cho45@lowreal.net>
+
+	* [change]:
+		Switch returns previous value
+
 2008-01-06  cho45
 
 	* [r4144] lib/pit.rb:
