@@ -15,7 +15,7 @@ end
 
 dir  = Pathname.tempname
 dir.mkpath
-ENV["HOME"] = dir
+ENV["HOME"] = dir.to_s
 
 require File.dirname(__FILE__) + '/test_helper.rb'
 
