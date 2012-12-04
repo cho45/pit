@@ -1,10 +1,10 @@
 
+require 'pit/version'
 require "yaml"
 require "pathname"
 require "tempfile"
 
 module Pit
-	VERSION   = "0.0.6"
 	Directory = Pathname.new("~/.pit").expand_path
 	@@config  = Directory + "pit.yaml"
 	@@profile = Directory + "default.yaml"
